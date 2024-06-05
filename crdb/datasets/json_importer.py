@@ -98,6 +98,9 @@ if __name__ == "__main__":
     vocabulary_csv = csv.writer(open(f"{opt.json}.vocabulary.csv", "w"))
     vocabulary_dict = {}
 
+    documents_authors_csv = csv.writer(open(f"{opt.json}.documents_authors.csv", "w"))
+    documents_authors_dict = {}
+
     for idx, entry in df.iterrows():
         if idx % 10000 == 0:
             print(f"Processing entry {idx}, took {time.time() - start_time:.2f}s")
@@ -112,6 +115,14 @@ if __name__ == "__main__":
             locations_dict[location_key] = location_id
             locations_csv.writerow([location_id, location[0], location[1]])
 
+        # =========== GENDERS ===========
+        gender_type = entry["gender"]
+        gender_id = genders_dict.get(gender_type)
+        if gender_id is None:
+            gender_id = gen_id()
+            genders_dict[gender_type] = gender_id
+            genders_csv.writerow([gender_id, gender_type])
+
         # =========== AUTHORS ===========
         author_id = (
             entry["author"]
@@ -120,7 +131,7 @@ if __name__ == "__main__":
         )
         if author_id not in author_dict:
             author_dict[author_id] = author_id
-            authors_csv.writerow([author_id, entry["gender"], entry["age"]])
+            authors_csv.writerow([author_id, gender_id, entry["age"]])
 
         # =========== DOCUMENTS ===========
         document_id = (
@@ -129,7 +140,6 @@ if __name__ == "__main__":
         documents_csv.writerow(
             [
                 document_id,
-                author_id,
                 location_id,
                 entry["lemmaText"],
                 entry["cleanText"],
@@ -137,6 +147,9 @@ if __name__ == "__main__":
                 entry["date"]["$date"],
             ]
         )
+
+        # =========== DOCUMENTS & AUTHORS ===========
+        documents_authors_csv.writerow([document_id, author_id])
 
         # =========== WORDS & VOCABULARY ===========
         for word_meta in entry["words"]:
@@ -151,8 +164,6 @@ if __name__ == "__main__":
                 words_csv.writerow([word_id, word])
 
             vocabulary_csv.writerow([word_id, document_id, count, tf])
-
-        # =========== VOCABULARY ===========
 
     # authors_csv.close()
     # documents_csv.close()
@@ -178,3 +189,27 @@ if __name__ == "__main__":
     #                 "UPSERT INTO authors (id, gender, age) VALUES (%s, %s, %s) RETURNING *",
     #                 (author, entry["gender"], entry["age"]),
     #             )
+
+    # multiple_authors = 0
+    # test = csv.writer(open(f"test.csv", "w"))
+    # for idx, entry in df.iterrows():
+    #     if idx % 10000 == 0:
+    #         print(f"Processing entry {idx}, took {time.time() - start_time:.2f}s")
+    #
+    #     author_id = (
+    #         entry["author"]
+    #         if type(entry["author"]) == int
+    #         else entry["author"]["$numberLong"]
+    #     )
+    #     document_id = (
+    #         entry["_id"] if type(entry["_id"]) == int else entry["_id"]["$numberLong"]
+    #     )
+    #     test.writerow([author_id, document_id])
+    #
+    # if author_id not in author_dict:
+    #     author_dict[author_id] = 0
+    # author_dict[author_id] += 1
+    #
+    # if document_id not in documents_dict:
+    #     documents_dict[document_id] = 0
+    # documents_dict[document_id] += 1
