@@ -8,3 +8,4 @@ services:
    volumes:
      - "${PWD}/scripts:/cockroach/scripts"
      - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data"
+     - "${PWD}/datasets:/cockroach/cockroach-data/extern/"

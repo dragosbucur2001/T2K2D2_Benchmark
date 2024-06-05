@@ -134,6 +134,7 @@ if __name__ == "__main__":
                 entry["lemmaText"],
                 entry["cleanText"],
                 entry["rawText"],
+                entry["date"]["$date"],
             ]
         )
 
