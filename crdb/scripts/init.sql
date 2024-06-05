@@ -31,8 +31,6 @@ create type gender as enum ('male', 'female');
 
 create table authors (
 	id int default unique_rowid() primary key,
-	first_name string not null,
-	last_name string not null,
 	age int not null,
 	gender gender not null
 );
