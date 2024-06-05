@@ -9,9 +9,15 @@ create table words (
 	lemma string not null
 );
 
+create table geo_locations (
+	id int default unique_rowid() primary key,
+	x int not null,
+	y int not null
+);
+
 create table documents (
 	id int default unique_rowid() primary key,
-	location geometry not null,
+	location_id int references geo_locations(id),
 	date date not null,
 	raw_text string not null,
 	lemma_text string not null,

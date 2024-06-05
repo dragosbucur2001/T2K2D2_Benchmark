@@ -1,0 +1,25 @@
+Using cache
+=====================
+Index(['_id', 'rawText', 'geoLocation', 'cleanText', 'gender', 'age', 'author',
+       'lemmaTextLength', 'lemmaText', 'words', 'date', 'attags',
+       'namedEntities', 'hashtags'],
+      dtype='object')
+=====================
+_id                            {'$numberLong': '644581985160028160'}
+rawText            rest in peace to all my family and friends I\'...
+geoLocation                                                 [35, 69]
+cleanText          rest in peace to all my family and friends i h...
+gender                                                        female
+age                                                               55
+author                                 {'$numberLong': '2472045552'}
+lemmaTextLength                                                    5
+lemmaText                              rest peace family friend lose
+words              [{'tf': 1.0, 'count': 1, 'word': 'rest', 'pos'...
+date                           {'$date': '2015-09-17T20:41:35.000Z'}
+attags                                                           NaN
+namedEntities                                                    NaN
+hashtags                                                         NaN
+Name: 0, dtype: object
+=====================
+[{'tf': 1.0, 'count': 1, 'word': 'rest', 'pos': ['NN']}, {'tf': 1.0, 'count': 1, 'word': 'peace', 'pos': ['NN']}, {'tf': 1.0, 'count': 1, 'word': 'family', 'pos': ['NN']}, {'tf': 1.0, 'count': 1, 'word': 'friend', 'pos': ['NN']}, {'tf': 1.0, 'count': 1, 'word': 'lose', 'pos': ['VB']}]
+=====================

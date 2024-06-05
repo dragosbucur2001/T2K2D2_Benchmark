@@ -6,6 +6,7 @@ import pandas as pd
 import pickle as pkl
 from pathlib import Path
 from argparse import ArgumentParser, RawTextHelpFormatter
+import csv
 
 import uuid
 
@@ -60,6 +61,14 @@ if __name__ == "__main__":
         print("Failed to load data", file=sys.stderr)
         exit(1)
 
+    print("=====================")
+    print(df.columns)
+    print("=====================")
+    print(df.iloc[0])
+    print("=====================")
+    print(df.iloc[0]["words"])
+    print("=====================")
+
     # conn = psycopg.connect(
     #     opt.db,
     #     row_factory=namedtuple_row,
@@ -71,48 +80,84 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    authors_csv = open(f"{opt.json}.authors.csv", "w")
+    authors_csv = csv.writer(open(f"{opt.json}.authors.csv", "w"))
     author_dict = {}
 
-    documents_csv = open(f"{opt.json}.documents.csv", "w")
+    documents_csv = csv.writer(open(f"{opt.json}.documents.csv", "w"))
     documents_dict = {}
 
-    genders_csv = open(f"{opt.json}.genders.csv", "w")
+    genders_csv = csv.writer(open(f"{opt.json}.genders.csv", "w"))
     genders_dict = {}
 
-    locations_csv = open(f"{opt.json}.locations.csv", "w")
+    locations_csv = csv.writer(open(f"{opt.json}.locations.csv", "w"))
     locations_dict = {}
 
-    words_csv = open(f"{opt.json}.words.csv", "w")
+    words_csv = csv.writer(open(f"{opt.json}.words.csv", "w"))
     words_dict = {}
+
+    vocabulary_csv = csv.writer(open(f"{opt.json}.vocabulary.csv", "w"))
+    vocabulary_dict = {}
 
     for idx, entry in df.iterrows():
         if idx % 10000 == 0:
             print(f"Processing entry {idx}, took {time.time() - start_time:.2f}s")
 
-        author_id = (
-            entry["author"]
-            if type(entry["author"]) == int
-            else entry["author"]["$numberLong"]
-        )
-        if author_id not in author_dict:
-            author_dict[author_id] = ()
-            authors_csv.write(f"{author_id},{entry['gender']},{entry['age']}\n")
-
+        # =========== LOCATIONS ===========
         location = entry["geoLocation"]
         location_key = (location[0], location[1])
         location_id = (
             locations_dict[location_key] if location_key in locations_dict else gen_id()
         )
         if location_key not in locations_dict:
-            locations_dict[location_key] = ()
-            locations_csv.write(f"{gen_id()},{location[0]},{location[1]}\n")
+            locations_dict[location_key] = location_id
+            locations_csv.writerow([location_id, location[0], location[1]])
 
-    authors_csv.close()
-    documents_csv.close()
-    genders_csv.close()
-    locations_csv.close()
-    words_csv.close()
+        # =========== AUTHORS ===========
+        author_id = (
+            entry["author"]
+            if type(entry["author"]) == int
+            else entry["author"]["$numberLong"]
+        )
+        if author_id not in author_dict:
+            author_dict[author_id] = author_id
+            authors_csv.writerow([author_id, entry["gender"], entry["age"]])
+
+        # =========== DOCUMENTS ===========
+        document_id = (
+            entry["_id"] if type(entry["_id"]) == int else entry["_id"]["$numberLong"]
+        )
+        documents_csv.writerow(
+            [
+                document_id,
+                author_id,
+                location_id,
+                entry["lemmaText"],
+                entry["cleanText"],
+                entry["rawText"],
+            ]
+        )
+
+        # =========== WORDS & VOCABULARY ===========
+        for word_meta in entry["words"]:
+            word = word_meta["word"]
+            count = word_meta["count"]
+            tf = word_meta["tf"]
+
+            word_id = words_dict.get(word)
+            if word_id is None:
+                word_id = gen_id()
+                words_dict[word] = word_id
+                words_csv.writerow([word_id, word])
+
+            vocabulary_csv.writerow([word_id, document_id, count, tf])
+
+        # =========== VOCABULARY ===========
+
+    # authors_csv.close()
+    # documents_csv.close()
+    # genders_csv.close()
+    # locations_csv.close()
+    # words_csv.close()
 
     # with conn.transaction():
     #     with conn.cursor() as cur:
