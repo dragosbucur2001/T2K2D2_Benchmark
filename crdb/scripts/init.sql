@@ -29,7 +29,6 @@ create table if not exists authors (
 create table if not exists documents (
 	id int default unique_rowid() primary key,
 	id_location int references geo_locations(id),
-	id_author int references authors(id),
 	date date not null,
 	raw_text string not null,
 	lemma_text string not null,
