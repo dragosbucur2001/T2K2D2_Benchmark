@@ -1,7 +1,7 @@
 services:
   crdb:
     image: cockroachdb/cockroach:latest
-    container_name: crdb-${DOCUMENTS}-${DISTRIBUTED}-${DB}-${SIZE}
+    container_name: crdb-single-${DOCUMENTS}-${DB}-${SIZE}
     ports:
      - "26257:26257"
      - "8080:8080"
