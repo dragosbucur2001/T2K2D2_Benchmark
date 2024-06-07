@@ -93,5 +93,8 @@ docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/in
 echo "IMPORTING DATA"
 docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
 
+echo "RUNNING QUERIES"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/queries.sql"
+
 echo "CLEANUP"
 docker compose down
