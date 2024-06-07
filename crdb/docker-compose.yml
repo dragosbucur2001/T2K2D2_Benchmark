@@ -1,11 +1,12 @@
 services:
- crdb:
-   image: cockroachdb/cockroach:latest
-   ports:
+  crdb:
+    image: cockroachdb/cockroach:latest
+    container_name: crdb-${DOCUMENTS}-${DISTRIBUTED}-${DB}-${SIZE}
+    ports:
      - "26257:26257"
      - "8080:8080"
-   command: start-single-node --insecure
-   volumes:
+    command: start-single-node --insecure
+    volumes:
      - "${PWD}/scripts:/cockroach/scripts"
      # - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data" # comment this in order to have temporary data
      - "${PWD}/datasets:/cockroach/cockroach-data/extern/"

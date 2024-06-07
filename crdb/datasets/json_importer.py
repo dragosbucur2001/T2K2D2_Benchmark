@@ -28,14 +28,14 @@ def load_data(json_file) -> pd.DataFrame:
         return data
 
 
-def import_to_db(json_file, csv_file):
-    df = load_data(json_file)
-
-    print(df.columns)
-    for i in range(10):
-        print("=====================")
-        # print(df.iloc[i])
-        print(df.iloc[i]["words"])
+# def import_to_db(json_file, csv_file):
+#     df = load_data(json_file)
+#
+#     print(df.columns)
+#     for i in range(10):
+#         print("=====================")
+#         # print(df.iloc[i])
+#         print(df.iloc[i]["words"])
 
 
 def gen_id():
@@ -45,16 +45,13 @@ def gen_id():
 if __name__ == "__main__":
     parser = ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
     parser.add_argument("json", help="Path to the JSON file")
-    parser.add_argument(
-        "db",
-        default="postgresql://root@127.0.0.1:26257/bd2?sslmode=disable",
-        nargs="?",
-        help="database connection string (default: value of the DATABASE_URL environment variable)",
-    )
+    parser.add_argument("--refresh-csv", help="Recreate CSV files", action="store_true")
 
     opt = parser.parse_args()
-    if opt.db is None:
-        parser.error("database connection string not set")
+
+    if Path(f"{opt.json}.documents_authors.csv").exists() and not opt.refresh_csv:
+        print("CSV already exist")
+        exit(0)
 
     df = load_data(opt.json)
     if df is None:
