@@ -2,17 +2,18 @@
 
 # Function to display usage
 usage() {
-  echo "Usage: $0 -d DISTRIBUTED -t TYPE -m MODEL -s SIZE -h HEURISTIC"
+  echo "Usage: $0 -d DISTRIBUTED -t TYPE -m MODEL -s SIZE -h HEURISTIC [-b]"
   echo "  DISTRIBUTED: either 'distributed' or 'single'"
   echo "  TYPE: either 'Documents' or 'Keywords'"
   echo "  MODEL: either 'DB' or 'OLAP'"
   echo "  SIZE: either '500K', '1000K', '1500K', '2000K', '2500K'"
   echo "  HEURISTIC: either 'Okapi' or 'TFIDF'"
+  echo "  -b: flag, if present will run benchmarks, otherwise just init container"
   exit 1
 }
 
 # Parse command-line arguments
-while getopts "d:t:m:s:h:" opt; do
+while getopts "d:t:m:s:h:b" opt; do
   case ${opt} in
     d )
       DISTRIBUTED=$OPTARG
@@ -28,6 +29,9 @@ while getopts "d:t:m:s:h:" opt; do
       ;;
     h )
       HEURISTIC=$OPTARG
+      ;;
+    b )
+      BENCHMARK=true
       ;;
     \? )
       usage
@@ -93,6 +97,10 @@ docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/in
 echo "IMPORTING DATA"
 docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
 
+if [ -z "$BENCHMARK" ] ; then
+  exit
+fi
+
 echo "RUNNING QUERIES"
 for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
   DIR_NAME="./results/$DISTRIBUTED"_"$SIZE/TopK_$TYPE/$MODEL"_"$HEURISTIC"
@@ -103,7 +111,7 @@ for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
   rm -f $OUTPUT_FILE
 
   echo "RUNNING $f"
-  for i in {1..13}; do
+  for i in {1..12}; do
     echo "RUNNING $i"
     echo -e "\n\n================== RUNNING $i ================\n\n" >> $OUTPUT_FILE
 
