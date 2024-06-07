@@ -77,23 +77,23 @@ export MODEL
 export SIZE
 export HEURISTIC
 
-# ./datasets/json_importer.py ./datasets/$SIZE/documents_clean$SIZE.json
-# # ./datasets/json_importer.py ./datasets/500k/documents_clean500K.json
-# docker compose up -d
-#
-# CONTAINER_NAME="crdb-single-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}"
-# echo $CONTAINER_NAME
-#
-# echo "SLEEPING"
-# sleep 5
-#
-# echo "CREATING TABLES"
-# docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init.sql"
-#
-# echo "IMPORTING DATA"
-# docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
-#
-# echo "RUNNING QUERIES"
+./datasets/json_importer.py ./datasets/$SIZE/documents_clean$SIZE.json
+# ./datasets/json_importer.py ./datasets/500k/documents_clean500K.json
+docker compose up -d
+
+CONTAINER_NAME="crdb-single-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}"
+echo $CONTAINER_NAME
+
+echo "SLEEPING"
+sleep 5
+
+echo "CREATING TABLES"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init.sql"
+
+echo "IMPORTING DATA"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
+
+echo "RUNNING QUERIES"
 for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
   DIR_NAME="./results/$DISTRIBUTED"_"$SIZE/TopK_$TYPE/$MODEL"_"$HEURISTIC"
   mkdir -p $DIR_NAME
@@ -101,13 +101,18 @@ for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
   FILENAME=$(basename "$f")
   OUTPUT_FILE="$DIR_NAME/$FILENAME.txt"
   rm -f $OUTPUT_FILE
-  for i in {1..10}; do
-    echo -e "\n\n================== Running $i ================\n\n" >> $OUTPUT_FILE
-    # docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f $f"
+
+  echo "RUNNING $f"
+  for i in {1..13}; do
+    echo "RUNNING $i"
+    echo -e "\n\n================== RUNNING $i ================\n\n" >> $OUTPUT_FILE
+
+    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f" &>> $OUTPUT_FILE
   done
+  echo -e "\n\n"
   # docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f $f"
 done
 # docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./queries/TopK_$TYPE/$MODEL_$HEURISTIC/.sql"
 
-# echo "CLEANUP"
-# docker compose down
+echo "CLEANUP"
+docker compose down

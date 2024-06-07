@@ -2,7 +2,7 @@
 
 use bd2;
 
-import into words (id, lemma) csv data
+import into words (id, word) csv data
 	('nodelocal://1/2000k/documents_clean2000K.json.words.csv');
 
 import into geo_locations (id, x, y) csv data

@@ -8,7 +8,7 @@ use bd2;
 
 create table if not exists words (
 	id int default unique_rowid() primary key,
-	lemma string not null
+	word string not null
 );
 
 create table if not exists geo_locations (
@@ -47,7 +47,7 @@ create table if not exists vocabulary (
 	id_document int references documents(id),
 	id_word int references words(id),
 	count int not null, -- count + pos fields are not used
-	tf float not null,
+	tf decimal not null,
 
 	primary key (id_document, id_word)
 );

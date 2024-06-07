@@ -10,3 +10,4 @@ services:
      - "${PWD}/scripts:/cockroach/scripts"
      # - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data" # comment this in order to have temporary data
      - "${PWD}/datasets:/cockroach/cockroach-data/extern/"
+     - "${PWD}/queries:/cockroach/queries/"
