@@ -5,7 +5,7 @@ usage() {
   echo "Usage: $0 -d DISTRIBUTED -t TYPE -m MODEL -s SIZE -h HEURISTIC"
   echo "  DISTRIBUTED: either 'distributed' or 'single'"
   echo "  TYPE: either 'Documents' or 'Keywords'"
-  echo "  MODEL: either 'db' or 'olap'"
+  echo "  MODEL: either 'DB' or 'OLAP'"
   echo "  SIZE: either '500K', '1000K', '1500K', '2000K', '2500K'"
   echo "  HEURISTIC: either 'Okapi' or 'TFIDF'"
   exit 1
@@ -44,12 +44,12 @@ if [[ "$DISTRIBUTED" != "distributed" && "$DISTRIBUTED" != "single" ]]; then
   usage
 fi
 
-if [[ "$TYPE" != "documents" && "$TYPE" != "keywords" ]]; then
+if [[ "$TYPE" != "Documents" && "$TYPE" != "Keywords" ]]; then
   echo "Invalid TYPE value"
   usage
 fi
 
-if [[ "$MODEL" != "db" && "$MODEL" != "olap" ]]; then
+if [[ "$MODEL" != "DB" && "$MODEL" != "OLAP" ]]; then
   echo "Invalid MODEL value"
   usage
 fi
@@ -77,24 +77,37 @@ export MODEL
 export SIZE
 export HEURISTIC
 
-./datasets/json_importer.py ./datasets/$SIZE/documents_clean$SIZE.json
-# ./datasets/json_importer.py ./datasets/500k/documents_clean500K.json
-docker compose up -d
+# ./datasets/json_importer.py ./datasets/$SIZE/documents_clean$SIZE.json
+# # ./datasets/json_importer.py ./datasets/500k/documents_clean500K.json
+# docker compose up -d
+#
+# CONTAINER_NAME="crdb-single-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}"
+# echo $CONTAINER_NAME
+#
+# echo "SLEEPING"
+# sleep 5
+#
+# echo "CREATING TABLES"
+# docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init.sql"
+#
+# echo "IMPORTING DATA"
+# docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
+#
+# echo "RUNNING QUERIES"
+for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
+  DIR_NAME="./results/$DISTRIBUTED"_"$SIZE/TopK_$TYPE/$MODEL"_"$HEURISTIC"
+  mkdir -p $DIR_NAME
 
-CONTAINER_NAME="crdb-single-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}"
-echo $CONTAINER_NAME
+  FILENAME=$(basename "$f")
+  OUTPUT_FILE="$DIR_NAME/$FILENAME.txt"
+  rm -f $OUTPUT_FILE
+  for i in {1..10}; do
+    echo -e "\n\n================== Running $i ================\n\n" >> $OUTPUT_FILE
+    # docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f $f"
+  done
+  # docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f $f"
+done
+# docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./queries/TopK_$TYPE/$MODEL_$HEURISTIC/.sql"
 
-echo "SLEEPING"
-sleep 5
-
-echo "CREATING TABLES"
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init.sql"
-
-echo "IMPORTING DATA"
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
-
-echo "RUNNING QUERIES"
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/queries.sql"
-
-echo "CLEANUP"
-docker compose down
+# echo "CLEANUP"
+# docker compose down
