@@ -1,6 +1,7 @@
 -- CockroachDB initialiser
 
-drop database bd2 cascade;
+drop database if exists bd2 cascade;
+
 create database bd2;
 
 use bd2;
