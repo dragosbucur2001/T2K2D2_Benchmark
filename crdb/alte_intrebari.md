@@ -4,6 +4,7 @@
 4. warm up queries
 5. imi pare rau de PR
 6. este ok sa fie decimal in loc de float (performanta asemanatoare)
+7. Indexi suplimentari
 
 TODO:
 - [ ] 1. OLAP (schema + csv)

@@ -101,11 +101,11 @@ sleep 5
 
 echo
 echo "======== CREATING TABLES ========="
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init.sql"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init_$MODEL.sql"
 
 echo
 echo "======== IMPORTING DATA ========="
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/import_data_$SIZE.sql"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/$MODEL/import_data_$SIZE.sql"
 
 if [ -z "$BENCHMARK" ] ; then
   exit

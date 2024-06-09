@@ -1,14 +1,14 @@
-\set startDate '''2015-09-17 00:00:00'''
-\set endDate '''2015-09-18 00:00:00'''
-\set xStart 20
-\set xEnd 40
-\set yStart -100
-\set yEnd 100
-\set gender '''female'''
-\set top 10
-\set b 0.75
-\set k1 1.6
-\set words ('''think''')
+-- \set startDate '''2015-09-17 00:00:00'''
+-- \set endDate '''2015-09-18 00:00:00'''
+-- \set xStart 20
+-- \set xEnd 40
+-- \set yStart -100
+-- \set yEnd 100
+-- \set gender '''female'''
+-- \set top 10
+-- \set b 0.75
+-- \set k1 1.6
+-- \set words ('''think''')
 
 with
     q_docLen as (
@@ -16,8 +16,8 @@ with
                 from document_facts f 
                     inner join author_dimension ad on ad.id_author = f.id_author
                     inner join time_dimension td on td.id_time = f.id_time
-                where gender=:gender
-                    and td.full_date between :startDate and :endDate
+                where gender='female'
+                    and td.full_date between '2015-09-17 00:00:00' and '2015-09-18 00:00:00'
                 group by f.id_document
             ),
     q_noDocWords as (
@@ -25,17 +25,17 @@ with
                 from document_facts f
                     inner join author_dimension ad on ad.id_author = f.id_author
                     inner join time_dimension td on td.id_time = f.id_time
-                where gender=:gender
-                    and td.full_date between :startDate and :endDate
+                where gender='female'
+                    and td.full_date between '2015-09-17 00:00:00' and '2015-09-18 00:00:00'
                 group by f.id_word
             )
 select f.id_document,
-                sum((1+ln((select count(id_document) from q_docLen)::float/ndw.noDocWords)::float)::float 
-                    * (:k1 + 1) * 
-                    (f.tf/(f.tf + :k1*(1-:b+
-                        :b*dl.docLen/
-                            (select avg(docLen) from q_docLen)::float
-                        )::float)::float)::float)::float Okapi         
+                sum((1+ln((select count(id_document) from q_docLen)/ndw.noDocWords)) 
+                    * (1.6 + 1) * 
+                    (f.tf/(f.tf + 1.6*(1-0.75+
+                        0.75*dl.docLen/
+                            (select avg(docLen) from q_docLen)
+                        )))) Okapi         
             from 
                 document_facts f
                 inner join word_dimension wd on wd.id_word = f.id_word
@@ -44,11 +44,10 @@ select f.id_document,
                 inner join q_docLen dl on dl.id_document = f.id_document
                 inner join q_noDocWords ndw on ndw.id_word = f.id_word
             where
-                ad.gender = :gender
-                and td.full_date between :startDate and :endDate
-                and word in :words
+                ad.gender = 'female'
+                and td.full_date between '2015-09-17 00:00:00' and '2015-09-18 00:00:00'
+                and word in ('think')
             group by f.id_document
             order by 2 desc, 1
-            limit :top;
+            limit 10;
 
-\q
