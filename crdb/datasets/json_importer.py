@@ -107,7 +107,7 @@ def write_db():
             words_olap_csv.writerow([word_id, word])
 
         vocabulary_csv.writerow([word_id, document_id, count, tf])
-        documents_facts_olap_csv.writerow(
+        document_facts_olap_csv.writerow(
             [document_id, word_id, location_id, author_id, time_id, count, tf]
         )
 
@@ -150,8 +150,8 @@ if __name__ == "__main__":
     documents_olap_csv = csv.writer(open(f"{opt.json}.olap.documents.csv", "w"))
     words_olap_csv = csv.writer(open(f"{opt.json}.olap.words.csv", "w"))
     date_olap_csv = csv.writer(open(f"{opt.json}.olap.date.csv", "w"))
-    documents_facts_olap_csv = csv.writer(
-        open(f"{opt.json}.olap.documents_facts.csv", "w")
+    document_facts_olap_csv = csv.writer(
+        open(f"{opt.json}.olap.document_facts.csv", "w")
     )
 
     author_dict = {}

@@ -22,7 +22,7 @@ create type gender as enum ('male', 'female');
 create table if not exists author_dimension (
 	id_author int default unique_rowid() primary key,
 	age int not null,
-	gender gender not null;
+	gender gender not null
 );
 
 create table if not exists document_dimension (
@@ -44,7 +44,7 @@ create table if not exists document_facts (
 	id_author int references author_dimension(id_author),
 	id_time int references time_dimension(id_time),
 	count int not null,
-	tf decimal not null
+	tf decimal not null,
 
 	primary key (id_document, id_author, id_word, id_location, id_time)
 );
