@@ -2,6 +2,7 @@ services:
   crdb:
     image: cockroachdb/cockroach:latest
     container_name: crdb-single-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}
+    hostname: crdb1
     ports:
      - "26257:26257"
      - "8080:8080"
@@ -11,3 +12,4 @@ services:
      # - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data" # comment this in order to have temporary data
      - "${PWD}/datasets:/cockroach/cockroach-data/extern/"
      - "${PWD}/queries:/cockroach/queries/"
+

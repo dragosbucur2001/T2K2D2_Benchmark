@@ -6,6 +6,9 @@ create database bd2;
 
 use bd2;
 
+set cluster setting sql.defaults.distsql = always; 
+SET CLUSTER SETTING sql.distsql.temp_storage.workmem = '256MiB';
+
 create table if not exists word_dimension (
 	id_word int default unique_rowid() primary key,
 	word string not null

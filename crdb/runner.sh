@@ -88,24 +88,39 @@ echo "======== CREATING THE DATASET ========="
 
 echo
 echo "======== DOCKER UP ========="
-docker compose up -d
+docker compose -f "docker-compose-$DISTRIBUTED.yml" up -d --wait
 
-CONTAINER_NAME="crdb-single-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}"
+CONTAINER_NAME=""
+HOST=""
+HOST_CLUSTER=""
+
+if [ "$DISTRIBUTED" == "distributed" ]; then
+  CONTAINER_NAME="crdb-distributed-1-$TYPE-$MODEL-$SIZE-$HEURISTIC"
+  HOST="--host=crdb1:26257"
+  HOST_CLUSTER="--host=crdb1:26357"
+
+  echo "======== INITIALIZING CLUSTER ========="
+  docker exec -t $CONTAINER_NAME bash -c "cockroach init --insecure $HOST_CLUSTER"
+  sleep 3
+else
+  CONTAINER_NAME="crdb-single-$TYPE-$MODEL-$SIZE-$HEURISTIC"
+fi
 echo
 echo "======== CONTAINER NAME ========"
 echo $CONTAINER_NAME
 
-echo
-echo "======== SLEEPING ========="
-sleep 5
+# echo
+# echo "======== SLEEPING ========="
+# sleep 5
 
 echo
 echo "======== CREATING TABLES ========="
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init_$MODEL.sql"
+echo docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init_$MODEL.sql $HOST"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/init_$MODEL.sql $HOST"
 
 echo
 echo "======== IMPORTING DATA ========="
-docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/$MODEL/import_data_$SIZE.sql"
+docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f ./scripts/$MODEL/import_data_$SIZE.sql $HOST"
 
 if [ -z "$BENCHMARK" ] ; then
   exit
@@ -126,9 +141,9 @@ for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
   if [ $COUNTER -eq 1 ]; then
     echo
     echo "========== WARMUP =========="
-    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f"
-    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f"
-    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f"
+    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f $HOST"
+    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f $HOST"
+    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f $HOST"
   fi
 
   echo
@@ -137,7 +152,7 @@ for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
     echo "RUNNING $i"
     echo -e "\n\n================== RUNNING $i ================\n\n" >> $OUTPUT_FILE
 
-    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f" &>> $OUTPUT_FILE
+    docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure --database=bd2 -f $f $HOST" &>> $OUTPUT_FILE
   done
   echo -e "\n\n"
   # docker exec -t $CONTAINER_NAME bash -c "cockroach sql --insecure -f $f"
@@ -146,4 +161,4 @@ done
 
 echo
 echo "========== CLEANUP =========="
-docker compose down
+docker compose -f "docker-compose-$DISTRIBUTED.yml" down

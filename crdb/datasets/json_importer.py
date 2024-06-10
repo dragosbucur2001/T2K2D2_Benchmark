@@ -10,8 +10,10 @@ import csv
 
 import uuid
 
+from pandas.core.generic import json
 
-def load_data(json_file) -> pd.DataFrame:
+
+def load_data(json_file) -> list[dict]:
     cache = Path(f"{json_file}.pkl")
     if cache.is_file():
         print("Using cache")
@@ -20,7 +22,13 @@ def load_data(json_file) -> pd.DataFrame:
 
     with open(json_file) as f:
         print("Reading JSON")
-        data = pd.read_json(f, lines=True)
+        data = []
+        idx = 0
+        for line in f:
+            idx += 1
+
+            data.append(json.loads(line.strip()))
+        # data = pd.read_json(f, lines=True)
         with open(cache, "wb") as f:
             print("Caching")
             pkl.dump(data, f)
@@ -123,19 +131,6 @@ if __name__ == "__main__":
         print("CSV already exist")
         exit(0)
 
-    df = load_data(opt.json)
-    if df is None:
-        print("Failed to load data", file=sys.stderr)
-        exit(1)
-
-    print("=====================")
-    print(df.columns)
-    print("=====================")
-    print(df.iloc[0])
-    print("=====================")
-    print(df.iloc[0]["words"])
-    print("=====================")
-
     start_time = time.time()
 
     authors_csv = csv.writer(open(f"{opt.json}.db.authors.csv", "w"))
@@ -167,8 +162,13 @@ if __name__ == "__main__":
     )
     documents_authors_dict = {}
 
-    for idx, entry in df.iterrows():
-        if idx % 10000 == 0:
-            print(f"Processing entry {idx}, took {time.time() - start_time:.2f}s")
+    with open(opt.json) as f:
+        print("Reading JSON")
+        idx = 0
+        for line in f:
+            entry = json.loads(line.strip())
+            if idx % 10000 == 0:
+                print(f"Processing entry {idx}, took {time.time() - start_time:.2f}s")
+            idx += 1
 
-        write_db()
+            write_db()

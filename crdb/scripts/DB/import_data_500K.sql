@@ -5,7 +5,7 @@ use bd2;
 import into words (id, word) csv data
 	('nodelocal://1/500K/documents_clean500K.json.db.words.csv');
 
-import into geo_locations (id, x, y) csv data
+import into geo_location (id, x, y) csv data
 	('nodelocal://1/500K/documents_clean500K.json.db.locations.csv');
 
 import into genders (id, type) csv data
@@ -16,11 +16,11 @@ import into authors (id, id_gender, age) csv data
 
 import into documents (
 	id,
-	id_location,
+	id_geo_loc,
 	lemma_text,
 	clean_text,
 	raw_text,
-	date
+	document_date
 ) csv data ('nodelocal://1/500K/documents_clean500K.json.db.documents.csv');
 
 import into documents_authors (

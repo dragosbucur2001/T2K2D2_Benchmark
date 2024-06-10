@@ -1,0 +1,52 @@
+services:
+  crdb1:
+    image: cockroachdb/cockroach:latest
+    hostname: crdb1
+    container_name: crdb-distributed-1-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}
+    ports:
+     - "26257:26257"
+     - "8080:8080"
+    command: start --insecure --advertise-addr=crdb1:26357 --listen-addr=crdb1:26357 --join=crdb1:26357,crdb2:26357,crdb3:26357 --sql-addr=crdb1:26257 --http-addr=crdb1:8080
+    networks:
+      - crdb_net
+    volumes:
+     - "${PWD}/scripts:/cockroach/scripts"
+     # - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data" # comment this in order to have temporary data
+     - "${PWD}/datasets:/cockroach/cockroach-data/extern/"
+     - "${PWD}/queries:/cockroach/queries/"
+
+  crdb2:
+    image: cockroachdb/cockroach:latest
+    hostname: crdb2
+    container_name: crdb-distributed-2-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}
+    ports:
+     - "26258:26258"
+     - "8081:8081"
+    command: start --insecure --advertise-addr=crdb2:26357 --listen-addr=crdb2:26357 --join=crdb1:26357,crdb2:26357,crdb3:26357 --sql-addr=crdb2:26258 --http-addr=crdb2:8081
+    networks:
+      - crdb_net
+    volumes:
+     - "${PWD}/scripts:/cockroach/scripts"
+     # - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data" # comment this in order to have temporary data
+     - "${PWD}/datasets:/cockroach/cockroach-data/extern/"
+     - "${PWD}/queries:/cockroach/queries/"
+
+  crdb3:
+    image: cockroachdb/cockroach:latest
+    hostname: crdb3
+    container_name: crdb-distributed-3-${TYPE}-${MODEL}-${SIZE}-${HEURISTIC}
+    ports:
+     - "26259:26259"
+     - "8082:8082"
+    command: start --insecure --advertise-addr=crdb3:26357 --listen-addr=crdb3:26357 --join=crdb1:26357,crdb2:26357,crdb3:26357 --sql-addr=crdb3:26259 --http-addr=crdb3:8082
+    networks:
+      - crdb_net
+    volumes:
+     - "${PWD}/scripts:/cockroach/scripts"
+     # - "${PWD}/cockroach-data/crdb:/cockroach/cockroach-data" # comment this in order to have temporary data
+     - "${PWD}/datasets:/cockroach/cockroach-data/extern/"
+     - "${PWD}/queries:/cockroach/queries/"
+
+networks:
+  crdb_net:
+    driver: bridge
