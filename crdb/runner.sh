@@ -4,9 +4,9 @@
 usage() {
   echo "Usage: $0 -d DISTRIBUTED -t TYPE -m MODEL -s SIZE -h HEURISTIC [-b]"
   echo "  DISTRIBUTED: either 'distributed' or 'single'"
-  echo "  TYPE: either 'Documents' or 'Keywords'"
   echo "  MODEL: either 'DB' or 'OLAP'"
   echo "  SIZE: either '500K', '1000K', '1500K', '2000K', '2500K'"
+  echo "  TYPE: either 'Documents' or 'Keywords'"
   echo "  HEURISTIC: either 'Okapi' or 'TFIDF'"
   echo "  -b: flag, if present will run benchmarks, otherwise just init container"
   exit 1

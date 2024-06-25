@@ -6,7 +6,7 @@ services:
     ports:
      - "26257:26257"
      - "8080:8080"
-    command: start --insecure --advertise-addr=crdb1:26357 --listen-addr=crdb1:26357 --join=crdb1:26357,crdb2:26357,crdb3:26357 --sql-addr=crdb1:26257 --http-addr=crdb1:8080
+    command: start --insecure --advertise-addr=crdb1:26357 --listen-addr=crdb1:26357 --join=crdb1:26357 --sql-addr=crdb1:26257 --http-addr=crdb1:8080
     networks:
       - crdb_net
     volumes:
@@ -22,7 +22,7 @@ services:
     ports:
      - "26258:26258"
      - "8081:8081"
-    command: start --insecure --advertise-addr=crdb2:26357 --listen-addr=crdb2:26357 --join=crdb1:26357,crdb2:26357,crdb3:26357 --sql-addr=crdb2:26258 --http-addr=crdb2:8081
+    command: start --insecure --advertise-addr=crdb2:26357 --listen-addr=crdb2:26357 --join=crdb1:26357 --sql-addr=crdb2:26258 --http-addr=crdb2:8081
     networks:
       - crdb_net
     volumes:
@@ -38,7 +38,7 @@ services:
     ports:
      - "26259:26259"
      - "8082:8082"
-    command: start --insecure --advertise-addr=crdb3:26357 --listen-addr=crdb3:26357 --join=crdb1:26357,crdb2:26357,crdb3:26357 --sql-addr=crdb3:26259 --http-addr=crdb3:8082
+    command: start --insecure --advertise-addr=crdb3:26357 --listen-addr=crdb3:26357 --join=crdb1:26357 --sql-addr=crdb3:26259 --http-addr=crdb3:8082
     networks:
       - crdb_net
     volumes:
