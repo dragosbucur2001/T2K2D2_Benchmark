@@ -2,13 +2,13 @@
 
 # Function to display usage
 usage() {
-  echo "Usage: $0 -d DISTRIBUTED -t TYPE -m MODEL -s SIZE -h HEURISTIC [-b]"
+  echo "Usage: $0 -d DISTRIBUTED -m MODEL -s SIZE [-b] -t TYPE -h HEURISTIC"
   echo "  DISTRIBUTED: either 'distributed' or 'single'"
   echo "  MODEL: either 'DB' or 'OLAP'"
   echo "  SIZE: either '500K', '1000K', '1500K', '2000K', '2500K'"
-  echo "  TYPE: either 'Documents' or 'Keywords'"
-  echo "  HEURISTIC: either 'Okapi' or 'TFIDF'"
   echo "  -b: flag, if present will run benchmarks, otherwise just init container"
+  echo "  TYPE: either 'Documents' or 'Keywords' required only if -b is present"
+  echo "  HEURISTIC: either 'Okapi' or 'TFIDF' required only if -b is present"
   exit 1
 }
 
@@ -39,17 +39,13 @@ while getopts "d:t:m:s:h:b" opt; do
   esac
 done
 
-if [ -z "$DISTRIBUTED" ] || [ -z "$TYPE" ] || [ -z "$MODEL" ] || [ -z "$SIZE" ] || [ -z "$HEURISTIC" ] ; then
+if [ -z "$DISTRIBUTED" ] || [ -z "$MODEL" ] || [ -z "$SIZE" ]; then
+  echo "DISTRIBUTED, MODEL and SIZE are required"
   usage
 fi
 
 if [[ "$DISTRIBUTED" != "distributed" && "$DISTRIBUTED" != "single" ]]; then
   echo "Invalid DISTRIBUTED value"
-  usage
-fi
-
-if [[ "$TYPE" != "Documents" && "$TYPE" != "Keywords" ]]; then
-  echo "Invalid TYPE value"
   usage
 fi
 
@@ -63,9 +59,21 @@ if [[ "$SIZE" != "500K" && "$SIZE" != "1000K" && "$SIZE" != "1500K" && "$SIZE" !
   usage
 fi
 
-if [[ "$HEURISTIC" != "Okapi" && "$HEURISTIC" != "TFIDF" ]]; then
-  echo "Invalid HEURISTIC value"
-  usage
+# Validate SIZE and HEURISTIC if BENCHMARK is set
+if [ "$BENCHMARK" = true ]; then
+  if  [ -z "$HEURISTIC" ] || [ -z "$TYPE" ] ; then
+    usage
+  fi
+
+  if [[ "$TYPE" != "Documents" && "$TYPE" != "Keywords" ]]; then
+    echo "Invalid TYPE value"
+    usage
+  fi
+
+  if [[ "$HEURISTIC" != "Okapi" && "$HEURISTIC" != "TFIDF" ]]; then
+    echo "Invalid HEURISTIC value"
+    usage
+  fi
 fi
 
 echo "Running script with the following parameters:"
