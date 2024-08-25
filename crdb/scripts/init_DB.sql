@@ -13,24 +13,24 @@ set cluster setting sql.defaults.distsql = always;
 
 create table if not exists words (
 	id int default unique_rowid() primary key,
-	word string not null,
+	word string not null
 );
 
 create table if not exists geo_location (
 	id int default unique_rowid() primary key,
 	x int not null,
-	y int not null,
+	y int not null
 );
 
 create table if not exists genders (
 	id int default unique_rowid() primary key,
-	type string not null,
+	type string not null
 );
 
 create table if not exists authors (
 	id int default unique_rowid() primary key,
 	age int not null,
-	id_gender int references genders(id),
+	id_gender int references genders(id)
 );
 
 create table if not exists documents (
@@ -39,14 +39,14 @@ create table if not exists documents (
 	document_date date not null,
 	raw_text string not null,
 	lemma_text string not null,
-	clean_text string not null,
+	clean_text string not null
 );
 
 create table if not exists documents_authors (
 	id_document int references documents(id),
 	id_author int references authors(id),
 
-	primary key (id_document, id_author),
+	primary key (id_document, id_author)
 );
 
 create table if not exists vocabulary (
@@ -55,6 +55,6 @@ create table if not exists vocabulary (
 	count int not null,
 	tf decimal not null,
 
-	primary key (id_document, id_word),
+	primary key (id_document, id_word)
 );
 

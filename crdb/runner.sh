@@ -148,7 +148,7 @@ for f in "./queries/TopK_$TYPE/$MODEL"_"$HEURISTIC/"*.sql; do
 
   echo
   echo "========== RUNNING $f =========="
-  for i in {1..10}; do
+  for i in {1..13}; do
     echo "RUNNING $i"
     echo -e "\n\n================== RUNNING $i ================\n\n" >> $OUTPUT_FILE
 
